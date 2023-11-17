@@ -38,22 +38,9 @@ const User = new mongoose.model("User",userSchema);
 
 //Routes
 
-/*app.post("/login",(req,res)=>{
-   const {email,password} = req.body;
-   User.findOne({email:email},(err,user) => {
-    if(user){
-        if(password === user.password){
-            res.send({message:"Login Successfull", user:user})
-        }
-        else{
-            res.send({message:"Password Incorrect"})
-        }
-    }
-    else{
-        res.send({message:"User not registered"});
-    }
-   })
-});*/
+// app.get("/profile",(req,res)=>{
+//   res.send("heloo");
+// })
 
 app.post('/login', async (req, res) => {
     try {
@@ -73,33 +60,6 @@ app.post('/login', async (req, res) => {
       res.status(500).json({ error: 'An error occurred during login' });
     }
   });
-
-
-/*app.post("/register",(req,res)=>{
-    // console.log(req.body);
-    const {name,email,password} = req.body
-
-    User.findOne({email:email},(err,user)=>{
-        if(user){
-            res.send({message:"User already register"})
-        }
-        else{
-            const user = new User({
-                name,
-                email,
-                password
-            })
-            user.save(err=>{
-                if(err){
-                    res.send(err);
-                }
-                else{
-                    res.send({message:"Successfully Registered"})
-                }
-            })  
-        }
-    })
-})*/
 
 app.post('/register', async (req, res) => {
     try {
@@ -122,6 +82,146 @@ app.post('/register', async (req, res) => {
       res.status(500).json({ error: 'An error occurred during registration' });
     }
   });
+
+//   app.put('/profile/', async (req, res) => {
+//     try {
+//         console.log('Received profile update req:', req.body);
+//         const { email ,name, currentPassword, newPassword } = req.body;
+
+//         // Step 1: Find the User by Current email
+//         const userWithCurrentemail = await User.findOne({ email });
+
+//         if (userWithCurrentemail) {
+//             // Step 2: Update the User
+//             userWithCurrentemail.name = name;
+//             if (newPassword) {
+//               userWithCurrentemail.password = newPassword;
+//             }
+
+//             await userWithCurrentemail.save();
+//             res.json({ message: 'Profile updated successfully', user: userWithCurrentemail });
+//         } else {
+//             res.status(404).json({ message: 'User not found or current password is incorrect' });
+//         }
+//     } catch (error) {
+//         console.error('Error updating profile:', error);
+//         res.status(500).json({ error: 'An error occurred during profile update' });
+//     }
+// });
+
+
+  // app.post('/profile', async (req, res) => {
+  //   try {
+  //     console.log('Received profile update req:', req.body);
+  //     const { name, newPassword } = req.body;
+  //     const user = await User.findByIdAndUpdate(req.user._id);
+  
+  //     if (user) {
+  //       user.name = name;
+  //       if (newPassword) {
+  //         user.password = newPassword;
+  //       }
+  
+  //       await user.save();
+  //       res.json({ message: 'Profile updated successfully', user });
+  //     } else {
+  //       res.status(404).json({ message: 'User not found' });
+  //     }
+  //   } catch (error) {
+  //     console.error('Error updating profile:', error);
+  //     res.status(500).json({ error: 'An error occurred during profile update' });
+  //   }
+  // });
+ 
+
+  // app.put('/profile', async (req, res) => {
+  //   try {
+  //     console.log('Received profile update req:', req.body);
+  //     const { name, newPassword } = req.body;
+  //     const user = await User.findById(req.user._id);
+  
+  //     if (user) {
+  //       user.name = name;
+  //       if (newPassword) {
+  //         user.password = newPassword;
+  //       }
+  
+  //       await user.save();
+  //       res.json({ message: 'Profile updated successfully', user });
+  //     } else {
+  //       res.status(404).json({ message: 'User not found' });
+  //     }
+  //     res.json({ message: 'Profile updated successfully', user });
+
+  //   } catch (error) {
+  //   console.error('Error updating profile:', error);
+  //   res.status(500).json({ error: 'An error occurred during profile update' });
+  //   }
+  //   console.log(req.body);
+  // });
+
+  // app.get("/profile",(req,res)=>{
+  //   res.send("This is the Profile page");
+  // });
+  
+  // app.put("/profile",async (req,res)=>{
+  //   console.log(req.body);
+  // })
+
+  app.put('/profile/', async (req, res) => {
+    try {
+        // console.log('Received profile update req:', req.body);
+        const { email, name, currentPassword, newPassword } = req.body;
+
+        // Step 1: Find the User by Email
+        const userWithCurrentPassword = await User.findOne({ email });
+        // console.log(userWithCurrentPassword._id)
+        if (userWithCurrentPassword) {
+            // Step 2: Verify the Current Password
+            if (currentPassword === userWithCurrentPassword.password) {
+                // Step 3: Update the User
+                userWithCurrentPassword.name = name;
+                if (newPassword) {
+                    // Update the password without hashing (not recommended for production)
+                    userWithCurrentPassword.password = newPassword;
+                }
+                await userWithCurrentPassword.save();
+                res.json({ message: 'Profile updated successfully', user: userWithCurrentPassword });
+            } else {
+                // res.status(401).json({ message: 'Incorrect current password' });
+                alert("Incorrect Current Password");
+            }
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error updating profile: (Check Current Password)', error);
+        res.status(500).json({ error: 'An error occurred during profile update' });
+    }
+});
+
+app.delete('/deleteAccount', async (req, res) => {
+  try {
+      const { email, password } = req.body;
+
+      // Step 1: Find the User by Email and Password
+      const userToDelete = await User.findOne({ email, password });
+
+      if (userToDelete) {
+          // Step 2: Delete the User
+          await User.deleteOne({ _id: userToDelete._id });
+          res.json({ message: 'Account deleted successfully' });
+      } else {
+          res.status(404).json({ message: 'User not found or password is incorrect' });
+      }
+  } catch (error) {
+      console.error('Error deleting account:', error);
+      res.status(500).json({ error: 'An error occurred during account deletion' });
+  }
+});
+
+
+
 
 app.listen(9002,()=>{
     console.log("Server is running on port 9002");

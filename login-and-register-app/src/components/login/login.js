@@ -21,7 +21,8 @@ const Login = ( { setLoginUser } ) => {
         })
     }
 
-    const login=()=>{
+    const login=(e)=>{
+        e.preventDefault();
         axios.post("http://localhost:9002/login",user)
         // .then(res => console.log(res))
         .then(res => {

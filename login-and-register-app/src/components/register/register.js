@@ -23,13 +23,15 @@ const Register = () => {
         })
     }
 
-    const register=()=>{
+    const register=(e)=>{
+        e.preventDefault();
         const {name , email, password ,reEnterPassword} = user
         if(name && email && password &&(password === reEnterPassword)){
             axios.post("http://localhost:9002/register",user)
             // .then(res=>console.log(res))
             .then(res => {
                 alert(res.data.message)
+                // console.log(res.data.UserId);
                 navigate("/login")
             })
         }
